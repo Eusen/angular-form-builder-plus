@@ -1,0 +1,8 @@
+{
+  "name": "@arc/forms",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/forms": "latest",
+    "@angular/core": "latest"
+  }
+}

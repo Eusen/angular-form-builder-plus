@@ -110,7 +110,6 @@ export class FormControlPlus<T = any> extends FormPlusBase<FormControl, T> {
     this.entry.clearAsyncValidators();
   }
 
-
   hasError() {
     return this.entry.dirty && this.entry.invalid;
   }
@@ -198,6 +197,7 @@ export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
   }
 
   hasError() {
+    this.touch();
     return Object.keys(this.tree).filter(key => this.tree[key].hasError()).length > 0;
   }
 

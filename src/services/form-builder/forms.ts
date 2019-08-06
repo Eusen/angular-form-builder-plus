@@ -1,3 +1,4 @@
+import {BehaviorSubject} from 'rxjs';
 import {FormBuilder, Validators, FormControl, FormGroup, FormArray} from '@angular/forms';
 import {ValidatorsWithoutParams, ValidatorsRequireParams, ValidatorsDefForControl, FromProductTree, ValidatorsDef} from './interfaces';
 
@@ -49,6 +50,8 @@ export class FormControlPlus<T = any> {
   private self = FormControlPlus;
   private readonly _control: FormControl;
 
+  changed = new BehaviorSubject<T>(null);
+
   get entry() {
     return this._control;
   }
@@ -62,8 +65,9 @@ export class FormControlPlus<T = any> {
   }
 
   constructor(value: T, private validators?: ValidatorsDefForControl) {
-    this._control = this.self.builder.control(value);
+    this._control = this.self.builder.control(null);
     this.buildValidators();
+    this.patch(value);
   }
 
   private buildValidators() {
@@ -85,7 +89,7 @@ export class FormControlPlus<T = any> {
   }
 
   setValidator(type: ValidatorsRequireParams, params: any) {
-    this.entry.setValidators(Validators[type](params));
+    this.entry.setValidators(Validators[type as any](params));
   }
 
   clearValidators() {
@@ -98,11 +102,12 @@ export class FormControlPlus<T = any> {
   }
 
   hasError() {
-    return this.entry.dirty && this.entry.errors;
+    return this.entry.dirty && this.entry.invalid;
   }
 
   patch(value: T) {
     this.entry.setValue(value);
+    this.changed.next(value);
   }
 }
 
@@ -113,6 +118,8 @@ export class FormGroupPlus<T = any> {
   private self = FormGroupPlus;
   private readonly _group: FormGroup;
   private tree: FromProductTree = {};
+
+  changed = new BehaviorSubject<T>(null);
 
   get entry() {
     return this._group;
@@ -134,6 +141,8 @@ export class FormGroupPlus<T = any> {
       this.tree[key] = form;
       this.entry.registerControl(key, form.entry);
     });
+
+    this.changed.next(this.value);
   }
 
   touch() {
@@ -146,7 +155,7 @@ export class FormGroupPlus<T = any> {
       return ctrl && !!ctrl.dirty && !!ctrl.errors;
     } else {
       this.touch();
-      return Object.keys(this.value).map(field => this.hasError(field)).filter(err => err).length > 0;
+      return Object.keys(this.tree).map(field => this.tree[field].hasError()).filter(err => err).length > 0;
     }
   }
 
@@ -173,6 +182,7 @@ export class FormGroupPlus<T = any> {
 
   patch(value: T) {
     this.entry.patchValue(value);
+    this.changed.next(this.value);
   }
 }
 
@@ -183,6 +193,8 @@ export class FormArrayPlus<T = any> {
   private self = FormArrayPlus;
   private readonly _array: FormArray;
   private tree: FromProductTree = {};
+
+  changed = new BehaviorSubject<T[]>(null);
 
   get entry() {
     return this._array;
@@ -206,7 +218,7 @@ export class FormArrayPlus<T = any> {
   }
 
   hasError() {
-    return this.entry.controls.filter(ctrl => ctrl.dirty && ctrl.errors).length > 0;
+    return Object.keys(this.tree).filter(key => this.tree[key].hasError()).length > 0;
   }
 
   private at<R = any>(index: number): R {
@@ -225,11 +237,12 @@ export class FormArrayPlus<T = any> {
     return this.at<FormArrayPlus>(index);
   }
 
-  push(value: T) {
+  push(value: T, emitEvent = true) {
     const key = this.value.length.toString();
     const ctrl = deepBuild(value, this.validators, key);
     this.tree[key] = ctrl;
     this.entry.push(ctrl.entry);
+    emitEvent && this.changed.next(this.value);
   }
 
   insert(index: number, value: T) {
@@ -237,6 +250,7 @@ export class FormArrayPlus<T = any> {
     const ctrl = deepBuild(value, this.validators, key);
     this.tree[key] = ctrl;
     this.entry.insert(index, ctrl.entry);
+    this.changed.next(this.value);
   }
 
   set(index: number, value: T) {
@@ -246,14 +260,36 @@ export class FormArrayPlus<T = any> {
 
   remove(index) {
     this.entry.removeAt(index);
+    this.changed.next(this.value);
   }
 
   clear() {
     this.entry.clear();
+    this.changed.next(this.value);
   }
 
   patch(newArray: T[]) {
     this.entry.clear();
-    newArray.forEach(item => this.push(item));
+    newArray.forEach(item => this.push(item, false));
+    this.changed.next(this.value);
+  }
+
+  switch(aIndex: number, bIndex: number) {
+    const array = this.value;
+    const old = array[aIndex];
+    array[aIndex] = array[bIndex];
+    array[bIndex] = old;
+    this.patch(array);
+  }
+
+  moveUp(index: number) {
+    if (index >= 1) this.switch(index, index - 1);
+    else throw new Error('Index must be greater than or equal to 1, otherwise it will be wrong');
+  }
+
+  moveDown(index) {
+    if (index < this.value.length - 1) this.switch(index, index + 1);
+    else throw new Error('The index must be less than or equal to the total length, otherwise it will be wrong');
   }
 }
+

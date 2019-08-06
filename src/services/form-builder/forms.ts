@@ -44,18 +44,31 @@ export function deepTouch(ctrl: FormControl | FormGroup | FormArray) {
   }
 }
 
-// control
-export class FormControlPlus<T = any> {
+// base
+const initValue = {control: null, group: {}, array: []};
+
+export class FormPlusBase<T, R = any> {
   static builder: FormBuilder;
-  private self = FormControlPlus;
-  private readonly _control: FormControl;
+  private self = FormPlusBase;
+  private readonly _entry: T;
+  protected tree: FromProductTree = {};
+  changed = new BehaviorSubject<R>(null);
 
-  changed = new BehaviorSubject<T>(null);
-
-  get entry() {
-    return this._control;
+  constructor(type: 'control' | 'group' | 'array') {
+    this._entry = this.self.builder[type](initValue[type]) as any;
   }
 
+  get entry() {
+    return this._entry;
+  }
+
+  touch() {
+    deepTouch(this._entry as any);
+  }
+}
+
+// control
+export class FormControlPlus<T = any> extends FormPlusBase<FormControl, T> {
   get value(): T {
     return this.entry.value;
   }
@@ -65,7 +78,7 @@ export class FormControlPlus<T = any> {
   }
 
   constructor(value: T, private validators?: ValidatorsDefForControl) {
-    this._control = this.self.builder.control(null);
+    super('control');
     this.buildValidators();
     this.patch(value);
   }
@@ -97,9 +110,6 @@ export class FormControlPlus<T = any> {
     this.entry.clearAsyncValidators();
   }
 
-  touch() {
-    deepTouch(this.entry);
-  }
 
   hasError() {
     return this.entry.dirty && this.entry.invalid;
@@ -113,18 +123,7 @@ export class FormControlPlus<T = any> {
 
 
 // group
-export class FormGroupPlus<T = any> {
-  static builder: FormBuilder;
-  private self = FormGroupPlus;
-  private readonly _group: FormGroup;
-  private tree: FromProductTree = {};
-
-  changed = new BehaviorSubject<T>(null);
-
-  get entry() {
-    return this._group;
-  }
-
+export class FormGroupPlus<T = any> extends FormPlusBase<FormGroup, T> {
   get value() {
     return this.entry.getRawValue();
   }
@@ -134,7 +133,7 @@ export class FormGroupPlus<T = any> {
   }
 
   constructor(value: T, private validators?: ValidatorsDef) {
-    this._group = this.self.builder.group([]);
+    super('group');
 
     Object.keys(value).forEach(key => {
       const form = deepBuild(value[key], this.validators, key);
@@ -143,10 +142,6 @@ export class FormGroupPlus<T = any> {
     });
 
     this.changed.next(this.value);
-  }
-
-  touch() {
-    deepTouch(this.entry);
   }
 
   hasError(key?: string) {
@@ -188,18 +183,7 @@ export class FormGroupPlus<T = any> {
 
 
 // array
-export class FormArrayPlus<T = any> {
-  static builder: FormBuilder;
-  private self = FormArrayPlus;
-  private readonly _array: FormArray;
-  private tree: FromProductTree = {};
-
-  changed = new BehaviorSubject<T[]>(null);
-
-  get entry() {
-    return this._array;
-  }
-
+export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
   get value(): T[] {
     return this.entry.getRawValue();
   }
@@ -209,12 +193,8 @@ export class FormArrayPlus<T = any> {
   }
 
   constructor(value: T[], private validators?: ValidatorsDef) {
-    this._array = this.self.builder.array([]);
+    super('array');
     this.patch(value);
-  }
-
-  touch() {
-    deepTouch(this.entry);
   }
 
   hasError() {
@@ -229,7 +209,7 @@ export class FormArrayPlus<T = any> {
     return this.at<FormControlPlus>(index);
   }
 
-  getGroup(index: number) {
+  getGroup(index: number, path: string) {
     return this.at<FormGroupPlus>(index);
   }
 

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {FormBuilder} from '@angular/forms';
 import {ValidatorsDef, ValidatorsDefForControl} from './interfaces';
-import {FormArrayPlus, FormControlPlus, FormGroupPlus} from './forms';
+import {FormArrayPlus, FormControlPlus, FormGroupPlus, FormPlusBase} from './forms';
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +22,7 @@ export class FormBuilderPlus {
   }
 
   constructor(builder: FormBuilder) {
-    FormControlPlus.builder = builder;
-    FormGroupPlus.builder = builder;
-    FormArrayPlus.builder = builder;
+    FormPlusBase.builder = builder;
   }
 
   control<T = any>(defaultValue: T, validators?: ValidatorsDefForControl) {

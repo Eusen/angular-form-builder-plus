@@ -11,7 +11,7 @@ export function deepBuild(target: any, validators?: ValidatorsDef, key?: string)
     return target;
   }
 
-  const isNull = target === null && target === undefined;
+  const isNull = target === null || target === undefined;
   const isObject = typeof target === 'object';
   const isDate = target instanceof Date;
 

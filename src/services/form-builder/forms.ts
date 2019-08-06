@@ -1,6 +1,6 @@
 import {BehaviorSubject} from 'rxjs';
 import {FormBuilder, Validators, FormControl, FormGroup, FormArray} from '@angular/forms';
-import {ValidatorsWithoutParams, ValidatorsRequireParams, ValidatorsDefForControl, FromProductTree, ValidatorsDef} from './interfaces';
+import {ValidatorsWithoutParams, ValidatorsRequireParams, ValidatorsDefForControl, FromGroupMap, ValidatorsDef, FormPlusObjects} from './interfaces';
 
 export function deepBuild(target: any, validators?: ValidatorsDef, key?: string) {
   if (
@@ -55,7 +55,6 @@ export class FormPlusBase<T, R = any> {
   static builder: FormBuilder;
   private self = FormPlusBase;
   private readonly _entry: T;
-  protected tree: FromProductTree = {};
   changed = new BehaviorSubject<R>(null);
 
   constructor(type: 'control' | 'group' | 'array') {
@@ -127,9 +126,12 @@ export class FormControlPlus<T = any> extends FormPlusBase<FormControl, T> {
 
 // group
 export class FormGroupPlus<T = any> extends FormPlusBase<FormGroup, T> {
+  protected tree: FromGroupMap = {};
+
   get value() {
     return this.entry.getRawValue();
   }
+
 
   set value(value: T) {
     this.patch(value);
@@ -153,7 +155,7 @@ export class FormGroupPlus<T = any> extends FormPlusBase<FormGroup, T> {
       return ctrl && !!ctrl.dirty && !!ctrl.errors;
     } else {
       this.touch();
-      return Object.keys(this.tree).map(field => this.tree[field].hasError()).filter(err => err).length > 0;
+      return Object.keys(this.tree).filter(field => this.tree[field].hasError()).length > 0;
     }
   }
 
@@ -187,6 +189,8 @@ export class FormGroupPlus<T = any> extends FormPlusBase<FormGroup, T> {
 
 // array
 export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
+  protected tree: FormPlusObjects[] = [];
+
   get value(): T[] {
     return this.entry.getRawValue();
   }
@@ -213,7 +217,7 @@ export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
     return this.at<FormControlPlus>(index);
   }
 
-  getGroup(index: number, path: string) {
+  getGroup(index: number) {
     return this.at<FormGroupPlus>(index);
   }
 
@@ -221,10 +225,15 @@ export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
     return this.at<FormArrayPlus>(index);
   }
 
+  set(index: number, value: T) {
+    const ctrl = this.at(index);
+    ctrl.patch(value);
+  }
+
   push(value: T, emitEvent = true) {
     const key = this.value.length.toString();
     const ctrl = deepBuild(value, this.validators, key);
-    this.tree[key] = ctrl;
+    this.tree.push(ctrl);
     this.entry.push(ctrl.entry);
     emitEvent && this.changed.next(this.value);
   }
@@ -232,18 +241,14 @@ export class FormArrayPlus<T = any> extends FormPlusBase<FormArray, T[]> {
   insert(index: number, value: T) {
     const key = index.toString();
     const ctrl = deepBuild(value, this.validators, key);
-    this.tree[key] = ctrl;
+    this.tree = this.tree.slice(0, index).concat(ctrl, this.tree.slice(index, this.tree.length));
     this.entry.insert(index, ctrl.entry);
     this.changed.next(this.value);
   }
 
-  set(index: number, value: T) {
-    const ctrl = this.at(index);
-    ctrl.patch(value);
-  }
-
-  remove(index) {
+  remove(index: number) {
     this.entry.removeAt(index);
+    this.tree.splice(index, 1);
     this.changed.next(this.value);
   }
 

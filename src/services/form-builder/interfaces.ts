@@ -14,6 +14,8 @@ export interface ValidatorsDefForControl {
   requireParams?: { key?: ValidatorsRequireParams, params?: any }[];
 }
 
-export interface FromProductTree {
-  [key: string]: FormControlPlus | FormGroupPlus | FormArrayPlus;
+export type FormPlusObjects = FormControlPlus | FormGroupPlus | FormArrayPlus;
+
+export interface FromGroupMap {
+  [key: string]: FormPlusObjects;
 }

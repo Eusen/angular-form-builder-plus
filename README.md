@@ -3,7 +3,7 @@
 ## 简介
 FormBuilderPlus 是 @angular/forms 下 FormBuilder 的升级版，有着与FormBuilder相同的功能：用来创建 FormObject (包括: FormControl, FormGroup, FormArray)。
 
-所谓升级版，就是在每一个 FormObject 基础上，套了一层壳，用来更方便的适用 FormObject。
+所谓升级版，就是在每一个 FormObject 基础上，套了一层壳，用来更方便的使用 FormObject。
 
 - FormControl -> FormContrlPlus
 - FormGroup -> FormGroupPlus

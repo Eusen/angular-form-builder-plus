@@ -11,7 +11,11 @@ export function deepBuild(target: any, validators?: ValidatorsDef, key?: string)
     return target;
   }
 
-  if (target !== null && target !== undefined && typeof target === 'object') {
+  const isNull = target !== null && target !== undefined;
+  const isObject = typeof target === 'object';
+  const isDate = target instanceof Date;
+
+  if (isNull && isObject && !isDate) {
     return (target instanceof Array) ? new FormArrayPlus(target, validators) : new FormGroupPlus(target, validators);
   } else {
     const validatorsForControl: ValidatorsDefForControl = {};

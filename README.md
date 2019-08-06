@@ -44,7 +44,7 @@ https://stackblitz.com/edit/angular-forms-plus
 - changed: BehaviorSubject<T>
     - 描述: 监听值改变的事件
 
-- entry: FormContrl
+- entry: FormControl
     - 描述: 原始 FormControl
 
 - value: T

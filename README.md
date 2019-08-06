@@ -124,14 +124,14 @@ https://stackblitz.com/edit/angular-forms-plus
 - hasError(): boolean
     - 描述: 返回是否有错误
 
-- getControl(path: string): FormControlPlus
-    - 描述: 根据路径获取子属性 -> FormControlPlus
+- getControl(index: string): FormControlPlus
+    - 描述: 根据索引获取子属性 -> FormControlPlus
 
-- getGroup(path: string): FormGroupPlus
-    - 描述: 根据路径获取子属性 -> FormGroupPlus
+- getGroup(index: string): FormGroupPlus
+    - 描述: 根据索引获取子属性 -> FormGroupPlus
 
-- getArray(path: string): FormArrayPlus
-    - 描述: 根据路径获取子属性 -> FormArrayPlus
+- getArray(index: string): FormArrayPlus
+    - 描述: 根据索引获取子属性 -> FormArrayPlus
 
 - patch(value: T[])
     - 描述: 更新原始值

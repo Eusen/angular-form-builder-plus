@@ -137,7 +137,7 @@ https://stackblitz.com/edit/angular-forms-plus
     - 描述: 更新原始值
 
 - push(value: T)
-    - 描述: 向原始值里添加一个元素（必须跟初始元素相同）
+    - 描述: 向原始值里添加一个元素（必须跟初始元素结构相同）
 
 - insert(index: number, value: T)
     - 描述: 向原始值里插入一个元素

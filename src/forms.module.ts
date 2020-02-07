@@ -1,42 +1,51 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 // imports start
 import {FormBuilderPlus} from './services/form-builder/form-builder-plus.service';
+import {FileUtil} from './services/form-utils/file/file.util';
+import {FormUtils} from './services/form-utils/form-utils.service';
+import {ImageUtil} from './services/form-utils/image/image.util';
 // imports end
 
-const $imports = [];
-const $declarations = [
+const imports = [
+  CommonModule,
+];
+const declarations = [
 // declarations start
 
 // declarations end
 ];
-const $entryComponents = [
+const entryComponents = [
 // entryComponents start
 
 // entryComponents end
 ];
-const $providers = [
+const providers = [
 // providers start
-FormBuilderPlus
+FormBuilderPlus,
+FileUtil,
+FormUtils,
+ImageUtil
 // providers end
 ];
-const $exports = [
-  ...$declarations,
-  ...$entryComponents,
+const exports = [
+  ...declarations,
+  ...entryComponents,
 ];
 
 @NgModule({
   imports: [
-    ...$imports,
+    ...imports,
   ],
   declarations: [
-    ...$declarations,
-    ...$entryComponents,
+    ...declarations,
+    ...entryComponents,
   ],
   entryComponents: [
-    ...$entryComponents,
+    ...entryComponents,
   ],
   exports: [
-    ...$exports
+    ...exports
   ],
 })
 export class ArcFormsModule {
@@ -44,7 +53,7 @@ export class ArcFormsModule {
     return {
       ngModule: ArcFormsModule,
       providers: [
-        ...$providers,
+        ...providers,
       ]
     };
   }

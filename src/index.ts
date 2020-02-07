@@ -3,4 +3,7 @@ export * from './forms.module';
 export * from './services/form-builder/form-builder-plus.service';
 export * from './services/form-builder/forms';
 export * from './services/form-builder/interfaces';
+export * from './services/form-utils/file/file.util';
+export * from './services/form-utils/form-utils.service';
+export * from './services/form-utils/image/image.util';
 // auto exports end

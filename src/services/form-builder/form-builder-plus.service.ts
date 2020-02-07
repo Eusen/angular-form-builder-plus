@@ -14,7 +14,7 @@ export class FormBuilderPlus {
   }
 
   static group<T = any>(structure: T, validators?: ValidatorsDef) {
-    return new FormGroupPlus<T>(structure, validators);
+    return new FormGroupPlus<T>(structure, validators as any);
   }
 
   static array<T = any>(structure: T[], validators?: ValidatorsDef) {

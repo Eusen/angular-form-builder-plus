@@ -25,7 +25,7 @@ https://stackblitz.com/edit/angular-forms-plus
 - control<T = any>(defaultValue: T, validators?: ValidatorsDefForControl) 
     - 描述: 构建 FormControl
     - 参数:
-        - structure: 可以是任何值
+        - defaultValue: 默认值，可以是任何值
         - validators: 定义检验
 
 - group<T = any>(structure: T, validators?: ValidatorsDef)
